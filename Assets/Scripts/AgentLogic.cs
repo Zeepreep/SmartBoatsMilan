@@ -41,7 +41,7 @@ struct AgentDirection : IComparable
 /// Also, it makes it easier to inspect since it is a Serializable struct.
 /// </summary>
 [Serializable]
-public struct AgentData
+public class AgentData
 {
     public int steps;
     public int rayRadius;
@@ -49,15 +49,15 @@ public struct AgentData
     public float movingSpeed;
     public Vector2 randomDirectionValue;
     public float boxWeight;
+    public float gasBoxWeight;
     public float distanceFactor;
     public float cowWeight;
     public float cowDistanceFactor;
-    public float enemyWeight;
-    public float enemyDistanceFactor;
+    public float gasZoneSurvivalTime;
 
     public AgentData(int steps, int rayRadius, float sight, float movingSpeed, Vector2 randomDirectionValue,
-        float boxWeight, float distanceFactor, float cowWeight, float cowDistanceFactor, float enemyWeight,
-        float enemyDistanceFactor)
+        float boxWeight, float gasBoxWeight, float distanceFactor, float cowWeight, float cowDistanceFactor,
+        float gasZoneSurvivalTime)
     {
         this.steps = steps;
         this.rayRadius = rayRadius;
@@ -65,11 +65,11 @@ public struct AgentData
         this.movingSpeed = movingSpeed;
         this.randomDirectionValue = randomDirectionValue;
         this.boxWeight = boxWeight;
+        this.gasBoxWeight = gasBoxWeight;
         this.distanceFactor = distanceFactor;
         this.cowWeight = cowWeight;
         this.cowDistanceFactor = cowDistanceFactor;
-        this.enemyWeight = enemyWeight;
-        this.enemyDistanceFactor = enemyDistanceFactor;
+        this.gasZoneSurvivalTime = gasZoneSurvivalTime;
     }
 }
 
@@ -87,6 +87,7 @@ public class AgentLogic : MonoBehaviour, IComparable
     [SerializeField] protected float points;
 
     private bool _isAwake;
+    private bool _inGasZone;
 
     [Header("Genes")] [SerializeField, Tooltip("Steps for the area of sight.")]
     private int steps;
@@ -106,11 +107,12 @@ public class AgentLogic : MonoBehaviour, IComparable
     [Space(10)] [Header("Weights")] [SerializeField]
     private float boxWeight;
 
-    [SerializeField] private float distanceFactor; 
+    [SerializeField] private float gasBoxWeight;
+
+    [SerializeField] private float distanceFactor;
     [SerializeField] private float cowWeight;
     [SerializeField] private float cowDistanceFactor;
-    [SerializeField] private float enemyWeight;
-    [SerializeField] private float enemyDistanceFactor;
+    [SerializeField] private float gasZoneSurvivalTime;
 
     [Space(10)] [Header("Debug & Help")] [SerializeField]
     private Color visionColor;
@@ -160,11 +162,12 @@ public class AgentLogic : MonoBehaviour, IComparable
         movingSpeed = parent.movingSpeed;
         randomDirectionValue = parent.randomDirectionValue;
         boxWeight = parent.boxWeight;
+        gasBoxWeight = parent.gasBoxWeight;
         distanceFactor = parent.distanceFactor;
         cowWeight = parent.cowWeight;
         cowDistanceFactor = parent.cowDistanceFactor;
-        enemyWeight = parent.enemyWeight;
-        enemyDistanceFactor = parent.enemyDistanceFactor;
+        gasZoneSurvivalTime = 0.0f;
+        _inGasZone = false;
     }
 
     /// <summary>
@@ -228,6 +231,11 @@ public class AgentLogic : MonoBehaviour, IComparable
 
         if (Random.Range(0.0f, 100.0f) <= mutationChance)
         {
+            gasBoxWeight += Random.Range(-mutationFactor, +mutationFactor);
+        }
+
+        if (Random.Range(0.0f, 100.0f) <= mutationChance)
+        {
             distanceFactor += Random.Range(-mutationFactor, +mutationFactor);
         }
 
@@ -240,22 +248,16 @@ public class AgentLogic : MonoBehaviour, IComparable
         {
             cowDistanceFactor += Random.Range(-mutationFactor, +mutationFactor);
         }
-
-        if (Random.Range(0.0f, 100.0f) <= mutationChance)
-        {
-            enemyWeight += Random.Range(-mutationFactor, +mutationFactor);
-        }
-
-        if (Random.Range(0.0f, 100.0f) <= mutationChance)
-        {
-            enemyDistanceFactor += Random.Range(-mutationFactor, +mutationFactor);
-        }
     }
 
     private void Update()
     {
         if (_isAwake)
         {
+            if (_inGasZone)
+            {
+                gasZoneSurvivalTime += Time.deltaTime;
+            }
             Act();
         }
     }
@@ -344,11 +346,12 @@ public class AgentLogic : MonoBehaviour, IComparable
             //Calculate the utility of the found object according to its type.
             utility = raycastHit.collider.gameObject.tag switch
             {
-                //All formulas are the same. Only the weights change.
-                "Box" => distanceIndex * distanceFactor + boxWeight,
+                // Increase box weights
+                "Box" => distanceIndex * distanceFactor + boxWeight * 1.5f,
+                "GasBox" => distanceIndex * distanceFactor + gasBoxWeight * 2.0f,
+                "GasSphere" => -100.0f, // Strong negative utility to escape gas zones
                 "Cow" => distanceIndex * cowDistanceFactor + cowWeight,
-                "Enemy" => distanceIndex * enemyDistanceFactor + enemyWeight,
-                _ => utility
+                _ => 0.0f
             };
         }
 
@@ -405,7 +408,23 @@ public class AgentLogic : MonoBehaviour, IComparable
     /// <returns></returns>
     public AgentData GetData()
     {
-        return new AgentData(steps, rayRadius, sight, movingSpeed, randomDirectionValue, boxWeight, distanceFactor,
-            cowWeight, cowDistanceFactor, enemyWeight, enemyDistanceFactor);
+        return new AgentData(steps, rayRadius, sight, movingSpeed, randomDirectionValue, boxWeight, gasBoxWeight,
+            distanceFactor, cowWeight, cowDistanceFactor, gasZoneSurvivalTime);
+    }
+
+    /// <summary>
+    /// Called when the agent enters a gas zone.
+    /// </summary>
+    public void EnterGasZone()
+    {
+        _inGasZone = true;
+    }
+
+    /// <summary>
+    /// Called when the agent exits a gas zone.
+    /// </summary>
+    public void ExitGasZone()
+    {
+        _inGasZone = false;
     }
 }

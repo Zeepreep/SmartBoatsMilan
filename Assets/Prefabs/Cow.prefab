@@ -1076,19 +1076,19 @@ MonoBehaviour:
   points: 0
   steps: 0
   rayRadius: 16
-  sight: 30
-  movingSpeed: 5
+  sight: 20
+  movingSpeed: 20
   randomDirectionValue: {x: -1, y: 1}
   boxWeight: 1
+  gasBoxWeight: 2
   distanceFactor: 1
-  boatWeight: 0
-  boatDistanceFactor: 0
-  enemyWeight: -1
-  enemyDistanceFactor: -1
+  cowWeight: 0
+  cowDistanceFactor: 0
   visionColor: {r: 0.21466713, g: 0.29546288, b: 0.6792453, a: 1}
   foundColor: {r: 0.59033465, g: 0.59780955, b: 0.6226415, a: 1}
   directionColor: {r: 0.4433962, g: 0.39784816, b: 0.10666606, a: 1}
   debug: 1
+  startHealth: 100
 --- !u!1 &9145609500565572942
 GameObject:
   m_ObjectHideFlags: 0

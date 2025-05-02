@@ -1,0 +1,19 @@
+0.01 - Starting Point
+- Changed boat to cow models
+- Changed pirate to bull models
+- Fixed an issue with parents during new generation
+- Added gaseous sphere visual
+- Changed water to grass
+
+
+0.02 - First Additions
+- Made the GenerateObjectsInArea script take in multiple areas to treat as one, to allow for more shape generation
+- Added Gas Boxes that spawn inside of the gaseous sphere
+- Cows now take damage inside gaseous sphere
+- Removed references to Pirates in AgentLogic
+- Added GasBox as a separate object within AgentLogic
+- GasSphere is now a detectable object using Raycasts
+
+- Best Cow now also takes time survived inside the gas zone into account
+- Made a separate scene with 4 small gas zones
+- Saved some notable output Prefabs
