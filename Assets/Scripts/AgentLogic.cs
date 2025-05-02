@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 /// <summary>
@@ -49,13 +50,13 @@ public struct AgentData
     public Vector2 randomDirectionValue;
     public float boxWeight;
     public float distanceFactor;
-    public float boatWeight;
-    public float boatDistanceFactor;
+    public float cowWeight;
+    public float cowDistanceFactor;
     public float enemyWeight;
     public float enemyDistanceFactor;
 
     public AgentData(int steps, int rayRadius, float sight, float movingSpeed, Vector2 randomDirectionValue,
-        float boxWeight, float distanceFactor, float boatWeight, float boatDistanceFactor, float enemyWeight,
+        float boxWeight, float distanceFactor, float cowWeight, float cowDistanceFactor, float enemyWeight,
         float enemyDistanceFactor)
     {
         this.steps = steps;
@@ -65,8 +66,8 @@ public struct AgentData
         this.randomDirectionValue = randomDirectionValue;
         this.boxWeight = boxWeight;
         this.distanceFactor = distanceFactor;
-        this.boatWeight = boatWeight;
-        this.boatDistanceFactor = boatDistanceFactor;
+        this.cowWeight = cowWeight;
+        this.cowDistanceFactor = cowDistanceFactor;
         this.enemyWeight = enemyWeight;
         this.enemyDistanceFactor = enemyDistanceFactor;
     }
@@ -105,9 +106,9 @@ public class AgentLogic : MonoBehaviour, IComparable
     [Space(10)] [Header("Weights")] [SerializeField]
     private float boxWeight;
 
-    [SerializeField] private float distanceFactor;
-    [SerializeField] private float boatWeight;
-    [SerializeField] private float boatDistanceFactor;
+    [SerializeField] private float distanceFactor; 
+    [SerializeField] private float cowWeight;
+    [SerializeField] private float cowDistanceFactor;
     [SerializeField] private float enemyWeight;
     [SerializeField] private float enemyDistanceFactor;
 
@@ -160,8 +161,8 @@ public class AgentLogic : MonoBehaviour, IComparable
         randomDirectionValue = parent.randomDirectionValue;
         boxWeight = parent.boxWeight;
         distanceFactor = parent.distanceFactor;
-        boatWeight = parent.boatWeight;
-        boatDistanceFactor = parent.boatDistanceFactor;
+        cowWeight = parent.cowWeight;
+        cowDistanceFactor = parent.cowDistanceFactor;
         enemyWeight = parent.enemyWeight;
         enemyDistanceFactor = parent.enemyDistanceFactor;
     }
@@ -232,12 +233,12 @@ public class AgentLogic : MonoBehaviour, IComparable
 
         if (Random.Range(0.0f, 100.0f) <= mutationChance)
         {
-            boatWeight += Random.Range(-mutationFactor, +mutationFactor);
+            cowWeight += Random.Range(-mutationFactor, +mutationFactor);
         }
 
         if (Random.Range(0.0f, 100.0f) <= mutationChance)
         {
-            boatDistanceFactor += Random.Range(-mutationFactor, +mutationFactor);
+            cowDistanceFactor += Random.Range(-mutationFactor, +mutationFactor);
         }
 
         if (Random.Range(0.0f, 100.0f) <= mutationChance)
@@ -345,7 +346,7 @@ public class AgentLogic : MonoBehaviour, IComparable
             {
                 //All formulas are the same. Only the weights change.
                 "Box" => distanceIndex * distanceFactor + boxWeight,
-                "Boat" => distanceIndex * boatDistanceFactor + boatWeight,
+                "Cow" => distanceIndex * cowDistanceFactor + cowWeight,
                 "Enemy" => distanceIndex * enemyDistanceFactor + enemyWeight,
                 _ => utility
             };
@@ -405,6 +406,6 @@ public class AgentLogic : MonoBehaviour, IComparable
     public AgentData GetData()
     {
         return new AgentData(steps, rayRadius, sight, movingSpeed, randomDirectionValue, boxWeight, distanceFactor,
-            boatWeight, boatDistanceFactor, enemyWeight, enemyDistanceFactor);
+            cowWeight, cowDistanceFactor, enemyWeight, enemyDistanceFactor);
     }
 }

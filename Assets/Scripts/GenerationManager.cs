@@ -43,9 +43,9 @@ public class GenerationManager : MonoBehaviour
     [SerializeField] private AgentData lastPirateWinnerData;
 
     private bool _runningSimulation;
-    private List<BoatLogic> _activeBoats;
+    private List<CowLogic> _activeBoats;
     private List<PirateLogic> _activePirates;
-    private BoatLogic[] _boatParents;
+    private CowLogic[] _boatParents;
     private PirateLogic[] _pirateParents;
 
     private void Awake()
@@ -94,7 +94,7 @@ public class GenerationManager : MonoBehaviour
     /// </summary>
     /// <param name="boatParents"></param>
     /// <param name="pirateParents"></param>
-    public void GenerateObjects(BoatLogic[] boatParents = null, PirateLogic[] pirateParents = null)
+    public void GenerateObjects(CowLogic[] boatParents = null, PirateLogic[] pirateParents = null)
     {
         GenerateBoats(boatParents);
         GeneratePirates(pirateParents);
@@ -130,14 +130,14 @@ public class GenerationManager : MonoBehaviour
     /// /// Newly create agents will be Awaken (calling AwakeUp()).
     /// </summary>
     /// <param name="boatParents"></param>
-    private void GenerateBoats(BoatLogic[] boatParents)
+    private void GenerateBoats(CowLogic[] boatParents)
     {
-        _activeBoats = new List<BoatLogic>();
+        _activeBoats = new List<CowLogic>();
         var objects = boatGenerator.RegenerateObjects();
-        foreach (var boat in objects.Select(obj => obj.GetComponent<BoatLogic>()).Where(boat => boat != null))
+        foreach (var boat in objects.Select(obj => obj.GetComponent<CowLogic>()).Where(boat => boat != null))
         {
             _activeBoats.Add(boat);
-            if (boatParents != null)
+            if (boatParents != null && boatParents.Length > 0)
             {
                 var boatParent = boatParents[Random.Range(0, boatParents.Length)];
                 boat.Birth(boatParent.GetData());
@@ -168,11 +168,13 @@ public class GenerationManager : MonoBehaviour
             GenerateBoats(_boatParents);
         }
 
-        _boatParents = new BoatLogic[boatParentSize];
-        for (var i = 0; i < boatParentSize; i++)
+        int parentCount = Mathf.Min(boatParentSize, _activeBoats.Count);
+        _boatParents = new CowLogic[parentCount];
+        for (int i = 0; i < parentCount; i++)
         {
             _boatParents[i] = _activeBoats[i];
         }
+
 
         var lastBoatWinner = _activeBoats[0];
         lastBoatWinner.name += "Gen-" + generationCount;
@@ -181,8 +183,10 @@ public class GenerationManager : MonoBehaviour
 
         _activePirates.RemoveAll(item => item == null);
         _activePirates.Sort();
-        _pirateParents = new PirateLogic[pirateParentSize];
-        for (var i = 0; i < pirateParentSize; i++)
+        
+        parentCount = Mathf.Min(pirateParentSize, _activePirates.Count);
+        _pirateParents = new PirateLogic[parentCount];
+        for (var i = 0; i < parentCount; i++)
         {
             _pirateParents[i] = _activePirates[i];
         }
