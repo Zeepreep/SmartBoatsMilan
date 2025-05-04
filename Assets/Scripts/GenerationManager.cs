@@ -154,11 +154,25 @@ public class GenerationManager : MonoBehaviour
         _activeBoats.RemoveAll(item => item == null);
         _activeBoats.Sort((a, b) =>
         {
-            float aHealthFactor = Mathf.Clamp(a.GetHealth() / a.startHealth, 0.1f, 1.0f); // Scale penalty by health
+            // Health factor (scaled and clamped)
+            float aHealthFactor = Mathf.Clamp(a.GetHealth() / a.startHealth, 0.1f, 1.0f);
             float bHealthFactor = Mathf.Clamp(b.GetHealth() / b.startHealth, 0.1f, 1.0f);
 
-            float aScore = a.GetPoints() + (a.GetData().gasZoneSurvivalTime * aHealthFactor * (a.GetPoints() > 0 ? 1 : -1));
-            float bScore = b.GetPoints() + (b.GetData().gasZoneSurvivalTime * bHealthFactor * (b.GetPoints() > 0 ? 1 : -1));
+            // Gas zone survival time (reward scaled by health factor)
+            float aGasZoneScore = a.GetSurvivalTimeInSeconds() * aHealthFactor * 2.0f; // Higher weight for survival
+            float bGasZoneScore = b.GetSurvivalTimeInSeconds() * bHealthFactor * 2.0f;
+
+            // Points collected (with bonus for gas zone points)
+            float aPointScore = a.GetPoints() + (a.GetData().gasZoneSurvivalTime > 0 ? a.GetPoints() * 0.5f : 0);
+            float bPointScore = b.GetPoints() + (b.GetData().gasZoneSurvivalTime > 0 ? b.GetPoints() * 0.5f : 0);
+
+            // Risk factor (penalty for staying in gas zone too long without progress)
+            float aRiskPenalty = a.GetData().gasZoneSurvivalTime > 0 && a.GetPoints() <= 0 ? -10.0f : 0.0f;
+            float bRiskPenalty = b.GetData().gasZoneSurvivalTime > 0 && b.GetPoints() <= 0 ? -10.0f : 0.0f;
+
+            // Final score calculation
+            float aScore = aGasZoneScore + aPointScore + aRiskPenalty;
+            float bScore = bGasZoneScore + bPointScore + bRiskPenalty;
 
             return bScore.CompareTo(aScore);
         });
@@ -197,6 +211,9 @@ public class GenerationManager : MonoBehaviour
             }
         }
 
+        var dataAnalysis = FindObjectOfType<DataAnalysis>();
+        dataAnalysis.ExportGenerationData(_activeBoats, generationCount);
+        
         // Create new generation from selected parents
         GenerateBoats(_boatParents);
 

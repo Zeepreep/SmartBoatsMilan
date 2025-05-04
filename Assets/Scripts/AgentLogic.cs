@@ -89,6 +89,9 @@ public class AgentLogic : MonoBehaviour, IComparable
     private bool _isAwake;
     private bool _inGasZone;
 
+    protected int gasBoxesCollected; 
+    private Vector3 _lastPosition;
+
     [Header("Genes")] [SerializeField, Tooltip("Steps for the area of sight.")]
     private int steps;
 
@@ -138,6 +141,7 @@ public class AgentLogic : MonoBehaviour, IComparable
     private void Awake()
     {
         Initiate();
+        _lastPosition = transform.position; // Initialize last position
     }
 
     /// <summary>
@@ -258,6 +262,9 @@ public class AgentLogic : MonoBehaviour, IComparable
             {
                 gasZoneSurvivalTime += Time.deltaTime;
             }
+
+            _lastPosition = transform.position;
+
             Act();
         }
     }
@@ -383,6 +390,39 @@ public class AgentLogic : MonoBehaviour, IComparable
         return points;
     }
 
+    public int GetGasBoxesCollected()
+    {
+        return gasBoxesCollected;
+    }
+
+    public float GetFitnessScore()
+    {
+        // Updated fitness score calculation
+        return points + (gasZoneSurvivalTime * 2.0f);
+    }
+
+    public string GetBehavioralPatterns()
+    {
+        // Example: Return a string summarizing behavioral tendencies
+        return $"Speed: {movingSpeed}, Sight: {sight}, Steps: {steps}";
+    }
+
+    public string GetGeneticTraits()
+    {
+        // Example: Return a string summarizing genetic traits
+        return $"BoxWeight: {boxWeight}, GasBoxWeight: {gasBoxWeight}, CowWeight: {cowWeight}";
+    }
+
+    public string GetQuantifiedBehavioralPatterns()
+    {
+        return $"EnteredGasZone: {_inGasZone}, TimeInGas: {gasZoneSurvivalTime:F2}s, Speed: {movingSpeed:F2}, Sight: {sight:F2}";
+    }
+
+    public float GetSurvivalTimeInSeconds()
+    {
+        return gasZoneSurvivalTime; // Already in seconds
+    }
+
     /// <summary>
     /// Compares the points of two agents. When used on Sort function will make the highest points to be on top.
     /// </summary>
@@ -428,3 +468,4 @@ public class AgentLogic : MonoBehaviour, IComparable
         _inGasZone = false;
     }
 }
+

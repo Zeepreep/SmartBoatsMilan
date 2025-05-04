@@ -32,6 +32,7 @@ public class CowLogic : AgentLogic
         else if (other.gameObject.tag.Equals("GasBox"))
         {
             points += _gasBoxPoints;
+            gasBoxesCollected++;
             Destroy(other.gameObject);
         }
 
@@ -76,3 +77,4 @@ public class CowLogic : AgentLogic
         return _health;
     }
 }
+

@@ -782,8 +782,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6934213648103343205}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 0.118268974, z: -0, w: 0.9929816}
-  m_LocalPosition: {x: -6.2525268, y: -0.0000000326061, z: 1.2856144}
+  m_LocalRotation: {x: -0, y: -0.3329191, z: -0, w: 0.94295543}
+  m_LocalPosition: {x: -7.9219446, y: 0, z: 4.5172906}
   m_LocalScale: {x: 0.026049502, y: 0.026049502, z: 0.026049502}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -850,17 +850,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac962a5b50ed44584b65086c49fa5d65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  points: 14
+  points: 0
   steps: 36
-  rayRadius: 10
-  sight: 54.79868
-  movingSpeed: 35.696537
-  randomDirectionValue: {x: -22.212154, y: 7.525501}
-  boxWeight: 22.942781
-  gasBoxWeight: 2
-  distanceFactor: -11.490353
-  cowWeight: 7.166029
-  cowDistanceFactor: -33.356617
+  rayRadius: 20
+  sight: 56.810684
+  movingSpeed: 32.125214
+  randomDirectionValue: {x: -18.933346, y: 29.688702}
+  boxWeight: 55.770733
+  gasBoxWeight: 6.0852633
+  distanceFactor: -14.713888
+  cowWeight: 8.187631
+  cowDistanceFactor: -0.29711962
+  gasZoneSurvivalTime: 0
   visionColor: {r: 0.21466713, g: 0.29546288, b: 0.6792453, a: 1}
   foundColor: {r: 0.59033465, g: 0.59780955, b: 0.6226415, a: 1}
   directionColor: {r: 0.4433962, g: 0.39784816, b: 0.10666606, a: 1}

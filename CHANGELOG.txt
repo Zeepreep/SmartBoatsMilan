@@ -17,3 +17,7 @@
 - Best Cow now also takes time survived inside the gas zone into account
 - Made a separate scene with 4 small gas zones
 - Saved some notable output Prefabs
+
+0.1 - First iteration
+ - Changed the sorting calculation to take more elements into account surrounding the Gas Spheres
+ - Added data analysis by exporting to file
