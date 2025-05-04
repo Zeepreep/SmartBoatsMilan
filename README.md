@@ -7,7 +7,7 @@ A Unity simulation where cows learn to navigate poisonous gas zones, collect “
 ## Documentation
 
 Want to know more about the setup, scenes, and evolution logic?  
-Check out the full [Wiki Documentation](https://github.com/Zeepreep/SmartBoatsMilan/wiki).
+Check out the full [Wiki Documentation](https://github.com/Zeepreep/SmartBoatsMilan/wiki/Documentation).
 
 ---
 
