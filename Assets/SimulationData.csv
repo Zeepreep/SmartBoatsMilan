@@ -1,0 +1,13 @@
+Type;Generation;AgentID;FitnessScore (s);GasBoxesCollected;SurvivalTime (s);Health;BehavioralPatterns;GeneticTraits
+Winner;0;Cow(Clone);14.94;0;6.47;40.00;EnteredGasZone: False, TimeInGas: 6.47s, Speed: 23.49, Sight: 19.56;BoxWeight: 1, GasBoxWeight: -1.26653, CowWeight: -2.092305
+Median;0;N/A;2.00;0;0.00;100.00;N/A;N/A
+Average;0;N/A;2.85;0;0.07;99.44;N/A;N/A
+Winner;0;Cow(Clone)Gen-0;78.00;17;5.00;60.00;EnteredGasZone: True, TimeInGas: 5.00s, Speed: 17.10, Sight: 17.57;BoxWeight: 1, GasBoxWeight: 2, CowWeight: 0
+Median;0;N/A;2.00;0;0.00;100.00;N/A;N/A
+Average;0;N/A;7.36;1.064;0.75;94.08;N/A;N/A
+Winner;2;Cow(Clone)Gen-2;74.01;16;5.00;50.00;EnteredGasZone: True, TimeInGas: 5.00s, Speed: 22.27, Sight: 19.72;BoxWeight: 1, GasBoxWeight: 2, CowWeight: 0
+Median;2;N/A;0.00;0;0.00;100.00;N/A;N/A
+Average;2;N/A;2.74;0.216;0.73;92.56;N/A;N/A
+Winner;0;Cow(Clone)Gen-0;35.91;3;7.96;30.00;EnteredGasZone: False, TimeInGas: 7.96s, Speed: 19.22, Sight: 20.00;BoxWeight: 1, GasBoxWeight: 2, CowWeight: 0
+Median;0;N/A;2.00;0;0.00;100.00;N/A;N/A
+Average;0;N/A;3.30;0.0636363636363636;0.19;98.45;N/A;N/A

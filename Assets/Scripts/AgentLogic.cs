@@ -279,37 +279,28 @@ public class AgentLogic : MonoBehaviour, IComparable
     {
         var selfTransform = transform;
         var forward = selfTransform.forward;
-        //Ignores the y component to avoid flying/sinking Agents.
         forward.y = 0.0f;
         forward.Normalize();
         var selfPosition = selfTransform.position;
 
-        //Initiate the rayDirection on the opposite side of the spectrum.
         var rayDirection = Quaternion.Euler(0, -1.0f * steps * (rayRadius / 2.0f), 0) * forward;
 
-        //List of AgentDirection (direction + utility) for all the directions.
         var directions = new List<AgentDirection>();
         for (var i = 0; i <= rayRadius; i++)
         {
-            //Add the new calculatedAgentDirection looking at the rayDirection.
             directions.Add(CalculateAgentDirection(selfPosition, rayDirection));
 
-            //Rotate the rayDirection by _steps every iteration through the entire rayRadius.
             rayDirection = Quaternion.Euler(0, steps, 0) * rayDirection;
         }
 
-        //Adds an extra direction for the front view with a extra range.
         directions.Add(CalculateAgentDirection(selfPosition, forward, 1.5f));
 
         directions.Sort();
-        //There is a (100 - _maxUtilityChoiceChance) chance of using the second best option instead of the highest one. Should help into ambiguous situation.
         var highestAgentDirection = directions[Random.Range(0.0f, 100.0f) <= _maxUtilityChoiceChance ? 0 : 1];
 
-        //Rotate towards to direction. The factor of 0.1 helps to create a "rotation" animation instead of automatically rotates towards the target. 
         transform.rotation = Quaternion.Slerp(transform.rotation,
             Quaternion.LookRotation(highestAgentDirection.Direction), 0.1f);
 
-        //Sets the velocity using the chosen direction
         _rigidbody.velocity = highestAgentDirection.Direction * movingSpeed;
 
         if (debug)
@@ -325,16 +316,12 @@ public class AgentLogic : MonoBehaviour, IComparable
             Debug.DrawRay(selfPosition, rayDirection * sight, visionColor);
         }
 
-        //Calculate a random utility to initiate the AgentDirection.
         var utility = Random.Range(Mathf.Min(randomDirectionValue.x, randomDirectionValue.y),
             Mathf.Max(randomDirectionValue.x, randomDirectionValue.y));
 
-        //Create an AgentDirection struct with a random utility value [utility]. Ignores y component.
         var direction = new AgentDirection(new Vector3(rayDirection.x, 0.0f, rayDirection.z), utility);
 
-        //Raycast into the rayDirection to check if something can be seen in that direction.
-        //The sightFactor is a variable that increases / decreases the size of the ray.
-        //For now, the sightFactor is only used to control the long sight in front of the agent.
+        
         if (Physics.Raycast(selfPosition, rayDirection, out RaycastHit raycastHit, sight * sightFactor))
         {
             if (debug)
@@ -342,21 +329,17 @@ public class AgentLogic : MonoBehaviour, IComparable
                 Debug.DrawLine(selfPosition, raycastHit.point, foundColor);
             }
 
-            //Calculate the normalized distance from the agent to the intersected object.
-            //Closer objects will have distancedNormalized close to 0, and further objects will have it close to 1.
+            
             var distanceNormalized = (raycastHit.distance / (sight * sightFactor));
 
-            //Inverts the distanceNormalized. Closer objects will tend to 1, while further objects will tend to 0.
-            //Thus, closer objects will have a higher value.
+            
             var distanceIndex = 1.0f - distanceNormalized;
 
-            //Calculate the utility of the found object according to its type.
             utility = raycastHit.collider.gameObject.tag switch
             {
-                // Increase box weights
                 "Box" => distanceIndex * distanceFactor + boxWeight * 1.5f,
                 "GasBox" => distanceIndex * distanceFactor + gasBoxWeight * 2.0f,
-                "GasSphere" => -100.0f, // Strong negative utility to escape gas zones
+                "GasSphere" => -100.0f,
                 "Cow" => distanceIndex * cowDistanceFactor + cowWeight,
                 _ => 0.0f
             };
@@ -397,19 +380,16 @@ public class AgentLogic : MonoBehaviour, IComparable
 
     public float GetFitnessScore()
     {
-        // Updated fitness score calculation
         return points + (gasZoneSurvivalTime * 2.0f);
     }
 
     public string GetBehavioralPatterns()
     {
-        // Example: Return a string summarizing behavioral tendencies
         return $"Speed: {movingSpeed}, Sight: {sight}, Steps: {steps}";
     }
 
     public string GetGeneticTraits()
     {
-        // Example: Return a string summarizing genetic traits
         return $"BoxWeight: {boxWeight}, GasBoxWeight: {gasBoxWeight}, CowWeight: {cowWeight}";
     }
 
@@ -420,7 +400,7 @@ public class AgentLogic : MonoBehaviour, IComparable
 
     public float GetSurvivalTimeInSeconds()
     {
-        return gasZoneSurvivalTime; // Already in seconds
+        return gasZoneSurvivalTime;
     }
 
     /// <summary>

@@ -38,7 +38,7 @@ public class CowLogic : AgentLogic
 
         if (other.gameObject.CompareTag("GasSphere"))
         {
-            EnterGasZone(); // Notify AgentLogic
+            EnterGasZone();
         }
     }
 
@@ -51,7 +51,7 @@ public class CowLogic : AgentLogic
                 StopCoroutine(gasSphereCoroutine);
                 gasSphereCoroutine = null;
             }
-            ExitGasZone(); // Notify AgentLogic
+            ExitGasZone();
         }
     }
 
@@ -77,4 +77,3 @@ public class CowLogic : AgentLogic
         return _health;
     }
 }
-

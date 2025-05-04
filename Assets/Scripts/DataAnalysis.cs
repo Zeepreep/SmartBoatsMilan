@@ -16,23 +16,18 @@ public class DataAnalysis : MonoBehaviour
     {
         string filePath = Path.Combine(Application.dataPath, exportFileName);
 
-        // Skip if no agents
         if (agents == null || agents.Count == 0) return;
 
-        // Prepare headers
         string[] headers =
         {
             "Type", "Generation", "AgentID", "FitnessScore (s)", "GasBoxesCollected",
             "SurvivalTime (s)", "Health", "BehavioralPatterns", "GeneticTraits"
         };
 
-        // Prepare rows
         List<string[]> rows = new List<string[]>();
 
-        // Sort agents by fitness score (assuming higher is better)
         agents = agents.OrderByDescending(a => a.GetFitnessScore()).ToList();
 
-        // Winner's statistics
         var winner = agents.First();
         rows.Add(new string[]
         {
@@ -47,7 +42,6 @@ public class DataAnalysis : MonoBehaviour
             winner.GetGeneticTraits()
         });
 
-        // Median values
         rows.Add(new string[]
         {
             "Median",
@@ -61,7 +55,6 @@ public class DataAnalysis : MonoBehaviour
             "N/A"
         });
 
-        // Average values
         rows.Add(new string[]
         {
             "Average",
@@ -75,16 +68,13 @@ public class DataAnalysis : MonoBehaviour
             "N/A"
         });
 
-        // Write data to CSV
         using (StreamWriter writer = new StreamWriter(filePath, true))
         {
-            // Write headers if the file is new
             if (new FileInfo(filePath).Length == 0)
             {
                 writer.WriteLine(string.Join(";", headers));
             }
 
-            // Write rows
             foreach (var row in rows)
             {
                 writer.WriteLine(string.Join(";", row));

@@ -11,12 +11,12 @@ namespace Editor
         {
             DrawDefaultInspector();
 
-            if (GUILayout.Button("Generate"))
+            if (GUILayout.Button("Generate Cows"))
             {
                 (target as GenerateObjectsInArea)?.RegenerateObjects();
             }
 
-            if (GUILayout.Button("Clear"))
+            if (GUILayout.Button("Clear Cows"))
             {
                 (target as GenerateObjectsInArea)?.RemoveChildren();
             }

@@ -12,13 +12,13 @@ public class GenerationManager : MonoBehaviour
     [SerializeField] private GasSphere[] gasSpheres;
 
     [Space(10)]
-    [SerializeField] private GenerateObjectsInArea boatGenerator;
+    [SerializeField] private GenerateObjectsInArea cowGenerator;
 
     [Space(10)] [Header("Parenting and Mutation")] [SerializeField]
     private float mutationFactor;
 
     [SerializeField] private float mutationChance;
-    [SerializeField] private int boatParentSize;
+    [SerializeField] private int cowParentSize;
 
     [Space(10)] [Header("Simulation Controls")] [SerializeField, Tooltip("Time per simulation (in seconds).")]
     private float simulationTimer;
@@ -35,18 +35,18 @@ public class GenerationManager : MonoBehaviour
     [Space(10)] [Header("Prefab Saving")] [SerializeField]
     private string savePrefabsAt;
 
-    [Space(10)] [Header("Debug Options")] [SerializeField, Tooltip("Disable boat spawning.")]
-    private bool debugDisableBoatSpawning;
+    [Space(10)] [Header("Debug Options")] [SerializeField, Tooltip("Disable cow spawning.")]
+    private bool debugDisableCowSpawning;
 
     /// <summary>
     /// Those variables are used mostly for debugging in the inspector.
     /// </summary>
     [Header("Former winners")] [SerializeField]
-    private AgentData lastBoatWinnerData;
+    private AgentData lastCowWinnerData;
 
     private bool _runningSimulation;
-    private List<CowLogic> _activeBoats;
-    private CowLogic[] _boatParents;
+    private List<CowLogic> _activeCows;
+    private CowLogic[] _cowParents;
 
     private void Awake()
     {
@@ -64,15 +64,17 @@ public class GenerationManager : MonoBehaviour
     private void Update()
     {
         if (!_runningSimulation) return;
-        //Creates a new generation.
+
         if (simulationCount >= simulationTimer)
         {
             ++generationCount;
             MakeNewGeneration();
-            simulationCount = -Time.deltaTime;
+            simulationCount = 0;
         }
-
-        simulationCount += Time.deltaTime;
+        else
+        {
+            simulationCount += Time.deltaTime;
+        }
     }
 
     /// <summary>
@@ -87,48 +89,48 @@ public class GenerationManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Generates boats using the parents list.
-    /// If no parents are used, then they are ignored and the boats are generated using the default prefab
+    /// Generates cows using the parents list.
+    /// If no parents are used, then they are ignored and the cows are generated using the default prefab
     /// specified in their areas.
     /// </summary>
-    /// <param name="boatParents"></param>
-    public void GenerateObjects(CowLogic[] boatParents = null)
+    /// <param name="cowParents"></param>
+    public void GenerateObjects(CowLogic[] cowParents = null)
     {
-        GenerateBoats(boatParents);
+        GenerateCows(cowParents);
     }
 
     /// <summary>
-    /// Generates the list of boats using the parents list. The parent list can be null and, if so, it will be ignored.
-    /// Newly created boats will go under mutation (MutationChances and MutationFactor will be applied).
+    /// Generates the list of cows using the parents list. The parent list can be null and, if so, it will be ignored.
+    /// Newly created cows will go under mutation (MutationChances and MutationFactor will be applied).
     /// Newly create agents will be Awaken (calling AwakeUp()).
     /// </summary>
-    /// <param name="boatParents"></param>
-    private void GenerateBoats(CowLogic[] boatParents)
+    /// <param name="cowParents"></param>
+    private void GenerateCows(CowLogic[] cowParents)
     {
-        if (debugDisableBoatSpawning)
+        if (debugDisableCowSpawning)
         {
-            Debug.Log("Boat spawning is disabled via debug option.");
+            Debug.Log("Cow spawning is disabled via debug option.");
             return;
         }
 
-        _activeBoats = new List<CowLogic>();
-        var objects = boatGenerator.RegenerateObjects();
-        foreach (var boat in objects.Select(obj => obj.GetComponent<CowLogic>()).Where(boat => boat != null))
+        _activeCows = new List<CowLogic>();
+        var objects = cowGenerator.RegenerateObjects();
+        foreach (var cow in objects.Select(obj => obj.GetComponent<CowLogic>()).Where(cow => cow != null))
         {
-            _activeBoats.Add(boat);
-            if (boatParents != null && boatParents.Length > 0)
+            _activeCows.Add(cow);
+            if (cowParents != null && cowParents.Length > 0)
             {
-                var boatParent = boatParents[Random.Range(0, boatParents.Length)];
-                boat.Birth(boatParent.GetData());
+                var cowParent = cowParents[Random.Range(0, cowParents.Length)];
+                cow.Birth(cowParent.GetData());
             }
 
-            boat.Mutate(mutationFactor, mutationChance);
-            boat.AwakeUp();
+            cow.Mutate(mutationFactor, mutationChance);
+            cow.AwakeUp();
         }
     }
 
     /// <summary>
-    /// Creates a new generation by using GenerateBoxes and GenerateBoats.
+    /// Creates a new generation by using GenerateBoxes and GenerateCows.
     /// Previous generations will be removed and the best parents will be selected and used to create the new generation.
     /// The best parents (top 1) of the generation will be stored as a Prefab in the [savePrefabsAt] folder. Their name
     /// will use the [generationCount] as an identifier.
@@ -144,78 +146,69 @@ public class GenerationManager : MonoBehaviour
             _gS.CheckCowsInSphere();
         }
 
-        if (debugDisableBoatSpawning)
+        if (debugDisableCowSpawning)
         {
             GenerateObjects(null);
             return;
         }
 
-        _activeBoats ??= new List<CowLogic>();
-        _activeBoats.RemoveAll(item => item == null);
-        _activeBoats.Sort((a, b) =>
+        _activeCows ??= new List<CowLogic>();
+        _activeCows.RemoveAll(item => item == null);
+        _activeCows.Sort((a, b) =>
         {
-            // Health factor (scaled and clamped)
             float aHealthFactor = Mathf.Clamp(a.GetHealth() / a.startHealth, 0.1f, 1.0f);
             float bHealthFactor = Mathf.Clamp(b.GetHealth() / b.startHealth, 0.1f, 1.0f);
 
-            // Gas zone survival time (reward scaled by health factor)
             float aGasZoneScore = a.GetSurvivalTimeInSeconds() * aHealthFactor * 2.0f; // Higher weight for survival
             float bGasZoneScore = b.GetSurvivalTimeInSeconds() * bHealthFactor * 2.0f;
 
-            // Points collected (with bonus for gas zone points)
             float aPointScore = a.GetPoints() + (a.GetData().gasZoneSurvivalTime > 0 ? a.GetPoints() * 0.5f : 0);
             float bPointScore = b.GetPoints() + (b.GetData().gasZoneSurvivalTime > 0 ? b.GetPoints() * 0.5f : 0);
 
-            // Risk factor (penalty for staying in gas zone too long without progress)
             float aRiskPenalty = a.GetData().gasZoneSurvivalTime > 0 && a.GetPoints() <= 0 ? -10.0f : 0.0f;
             float bRiskPenalty = b.GetData().gasZoneSurvivalTime > 0 && b.GetPoints() <= 0 ? -10.0f : 0.0f;
 
-            // Final score calculation
             float aScore = aGasZoneScore + aPointScore + aRiskPenalty;
             float bScore = bGasZoneScore + bPointScore + bRiskPenalty;
 
             return bScore.CompareTo(aScore);
         });
         
-        if (_activeBoats.Count == 0)
+        if (_activeCows.Count == 0)
         {
-            GenerateBoats(_boatParents);
-            _activeBoats.RemoveAll(item => item == null);
-            _activeBoats.Sort();
+            GenerateCows(_cowParents);
+            _activeCows.RemoveAll(item => item == null);
+            _activeCows.Sort();
         }
 
-        // Select top parents
-        int parentCount = Mathf.Min(boatParentSize, _activeBoats.Count);
-        _boatParents = new CowLogic[parentCount];
+        int parentCount = Mathf.Min(cowParentSize, _activeCows.Count);
+        _cowParents = new CowLogic[parentCount];
         for (int i = 0; i < parentCount; i++)
         {
-            _boatParents[i] = _activeBoats[i];
+            _cowParents[i] = _activeCows[i];
         }
 
-        // Save best agent as prefab
-        if (_activeBoats.Count > 0)
+        if (_activeCows.Count > 0)
         {
-            var best = _activeBoats[0];
+            var best = _activeCows[0];
             best.name += $"Gen-{generationCount}";
-            lastBoatWinnerData = best.GetData();
+            lastCowWinnerData = best.GetData();
             PrefabUtility.SaveAsPrefabAsset(best.gameObject, $"{savePrefabsAt}{best.name}.prefab");
             Debug.Log($"Last winner had: {best.GetPoints()} points!");
         }
 
-        // Destroy all boats from the previous generation
-        foreach (var boat in _activeBoats)
+        foreach (var cow in _activeCows)
         {
-            if (boat != null)
+            if (cow != null)
             {
-                Destroy(boat.gameObject);
+                Destroy(cow.gameObject);
             }
         }
 
         var dataAnalysis = FindObjectOfType<DataAnalysis>();
-        dataAnalysis.ExportGenerationData(_activeBoats, generationCount);
+        dataAnalysis.ExportGenerationData(_activeCows, generationCount);
         
-        // Create new generation from selected parents
-        GenerateBoats(_boatParents);
+        GenerateCows(_cowParents);
 
         ++generationCount;
     }
@@ -245,13 +238,13 @@ public class GenerationManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Stops the count for the simulation. It also removes null (Destroyed) boats from the _activeBoats list and sets
-    /// all boats to Sleep.
+    /// Stops the count for the simulation. It also removes null (Destroyed) cows from the _activeCows list and sets
+    /// all cows to Sleep.
     /// </summary>
     public void StopSimulation()
     {
         _runningSimulation = false;
-        _activeBoats?.RemoveAll(item => item == null);
-        _activeBoats?.ForEach(boat => boat.Sleep());
+        _activeCows?.RemoveAll(item => item == null);
+        _activeCows?.ForEach(cow => cow.Sleep());
     }
 }
